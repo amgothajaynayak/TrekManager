@@ -1,4 +1,11 @@
-# User routes — to be implemented in Phase 5
-from flask import Blueprint
+from flask import Blueprint, render_template
+from flask_login import login_required
+from utils.decorators import trekker_required
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
+
+@user_bp.route('/dashboard')
+@login_required
+@trekker_required
+def dashboard():
+    return render_template('user/dashboard.html')

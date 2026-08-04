@@ -1,6 +1,7 @@
 import os
-from flask import Flask
-from flask_login import LoginManager
+from flask import Flask, redirect, url_for, render_template
+from flask_login import LoginManager, current_user
+from flask_wtf.csrf import CSRFProtect
 from config import Config
 from models import db, User
 from routes import register_blueprints
@@ -10,6 +11,9 @@ app.config.from_object(Config)
 
 # Initialize db
 db.init_app(app)
+
+# Initialize CSRF Protection
+csrf = CSRFProtect(app)
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -24,13 +28,25 @@ def load_user(user_id):
 # Register Blueprints
 register_blueprints(app)
 
+# Home route
+@app.route('/')
+def home():
+    if current_user.is_authenticated:
+        if current_user.role == 'admin':
+            return redirect(url_for('admin.dashboard'))
+        elif current_user.role == 'staff':
+            return redirect(url_for('staff.dashboard'))
+        else:
+            return redirect(url_for('user.dashboard'))
+    return redirect(url_for('auth.login'))
+
 @app.errorhandler(404)
 def not_found_error(error):
-    return "404 Not Found", 404
+    return render_template('errors/404.html'), 404
 
 @app.errorhandler(403)
 def forbidden_error(error):
-    return "403 Forbidden", 403
+    return render_template('errors/403.html'), 403
 
 def setup_database():
     with app.app_context():
