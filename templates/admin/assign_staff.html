@@ -1,1 +1,90 @@
-<!-- Assign staff — to be implemented in Phase 3 -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header mb-4">
+    <h2>Assign Staff to Treks</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-5 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">New Assignment</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('admin.assign_staff') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <div class="mb-3">
+                        <label for="trek_id" class="form-label">Select Trek</label>
+                        <select class="form-select" id="trek_id" name="trek_id" required>
+                            <option value="">-- Choose a Trek --</option>
+                            {% for trek in treks %}
+                            <option value="{{ trek.id }}">{{ trek.name }} ({{ trek.status }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="staff_id" class="form-label">Select Staff</label>
+                        <select class="form-select" id="staff_id" name="staff_id" required>
+                            <option value="">-- Choose Staff --</option>
+                            {% for staff in staff_list %}
+                            <option value="{{ staff.id }}">{{ staff.username }} - {{ staff.staff_profile.specialization if staff.staff_profile else 'General' }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning"><i class="bi bi-person-check"></i> Assign Staff</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-7 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Current Assignments</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if treks %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Trek Name</th>
+                                <th>Dates</th>
+                                <th>Assigned Staff</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for trek in treks %}
+                            {% if trek.staff %}
+                            <tr>
+                                <td><strong>{{ trek.name }}</strong></td>
+                                <td>
+                                    <small class="text-muted">
+                                    {{ trek.start_date.strftime('%d %b %Y') if trek.start_date else '-' }} to 
+                                    {{ trek.end_date.strftime('%d %b %Y') if trek.end_date else '-' }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info text-dark"><i class="bi bi-person-fill"></i> {{ trek.staff.username }}</span>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state p-4 text-center">
+                    <div class="empty-state-text text-muted">No treks available.</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

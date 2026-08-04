@@ -1,1 +1,70 @@
-<!-- Manage treks — to be implemented in Phase 3 -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header mb-4 d-flex justify-content-between align-items-center">
+    <h2>Manage Treks</h2>
+    <a href="{{ url_for('admin.create_trek') }}" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create New Trek</a>
+</div>
+
+{% if treks %}
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Difficulty</th>
+                        <th>Duration</th>
+                        <th>Slots</th>
+                        <th>Staff</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trek in treks %}
+                    <tr>
+                        <td>{{ trek.id }}</td>
+                        <td><strong>{{ trek.name }}</strong></td>
+                        <td>{{ trek.location }}</td>
+                        <td>
+                            {% if trek.difficulty|lower == 'easy' %}
+                            <span class="badge bg-success">Easy</span>
+                            {% elif trek.difficulty|lower == 'moderate' %}
+                            <span class="badge bg-warning text-dark">Moderate</span>
+                            {% elif trek.difficulty|lower == 'hard' %}
+                            <span class="badge bg-danger">Hard</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ trek.difficulty }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ trek.duration }} days</td>
+                        <td>{{ trek.available_slots }} / {{ trek.total_slots }}</td>
+                        <td>{{ trek.staff.username if trek.staff else 'None' }}</td>
+                        <td><span class="badge badge-status-{{ trek.status|lower }}">{{ trek.status }}</span></td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('admin.edit_trek', trek_id=trek.id) }}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                                <form action="{{ url_for('admin.delete_trek', trek_id=trek.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this trek? This action cannot be undone.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="empty-state p-5 text-center mt-4">
+    <div class="empty-state-icon mb-3 fs-1 text-muted"><i class="bi bi-signpost-split"></i></div>
+    <div class="empty-state-text text-muted mb-3">No treks have been created yet.</div>
+    <a href="{{ url_for('admin.create_trek') }}" class="btn btn-success"><i class="bi bi-plus-circle"></i> Create First Trek</a>
+</div>
+{% endif %}
+{% endblock %}

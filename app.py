@@ -9,26 +9,23 @@ from routes import register_blueprints
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Initialize db
 db.init_app(app)
-
-# Initialize CSRF Protection
 csrf = CSRFProtect(app)
 
-# Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Register Blueprints
+
 register_blueprints(app)
 
-# Home route
+
 @app.route('/')
 def home():
     if current_user.is_authenticated:
@@ -40,13 +37,16 @@ def home():
             return redirect(url_for('user.dashboard'))
     return redirect(url_for('auth.login'))
 
+
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404
 
+
 @app.errorhandler(403)
 def forbidden_error(error):
     return render_template('errors/403.html'), 403
+
 
 def setup_database():
     with app.app_context():
@@ -65,6 +65,7 @@ def setup_database():
             admin.set_password('admin123')
             db.session.add(admin)
             db.session.commit()
+
 
 setup_database()
 

@@ -1,1 +1,119 @@
-<!-- Search — to be implemented in Phase 3 -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header mb-4">
+    <h2>Search</h2>
+</div>
+
+<div class="card shadow-sm mb-5">
+    <div class="card-body">
+        <form action="{{ url_for('admin.search') }}" method="GET" class="d-flex gap-2">
+            <input type="text" class="form-control" name="q" placeholder="Search by name, username, or ID..." value="{{ request.args.get('q', '') }}">
+            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-search"></i> Search</button>
+        </form>
+    </div>
+</div>
+
+{% if request.args.get('q') %}
+    <!-- Treks Results -->
+    <h4 class="mb-3 border-bottom pb-2">Trek Results <small class="text-muted fs-6">({{ treks|length }} result(s) found)</small></h4>
+    {% if treks %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trek in treks %}
+                        <tr>
+                            <td>{{ trek.id }}</td>
+                            <td>{{ trek.name }}</td>
+                            <td>{{ trek.location }}</td>
+                            <td><span class="badge badge-status-{{ trek.status|lower }}">{{ trek.status }}</span></td>
+                            <td><a href="{{ url_for('admin.edit_trek', trek_id=trek.id) }}" class="btn btn-sm btn-primary">Edit</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted mb-4">No matching treks found.</p>
+    {% endif %}
+
+    <!-- Staff Results -->
+    <h4 class="mb-3 border-bottom pb-2">Staff Results <small class="text-muted fs-6">({{ staff|length }} result(s) found)</small></h4>
+    {% if staff %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in staff %}
+                        <tr>
+                            <td>{{ s.id }}</td>
+                            <td>{{ s.username }}</td>
+                            <td>{{ s.email }}</td>
+                            <td><span class="badge badge-status-{{ 'active' if s.is_active else 'blacklisted' }}">{{ 'Active' if s.is_active else 'Blacklisted' }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted mb-4">No matching staff found.</p>
+    {% endif %}
+
+    <!-- Users Results -->
+    <h4 class="mb-3 border-bottom pb-2">User Results <small class="text-muted fs-6">({{ users|length }} result(s) found)</small></h4>
+    {% if users %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>{{ u.id }}</td>
+                            <td>{{ u.username }}</td>
+                            <td>{{ u.email }}</td>
+                            <td><span class="badge badge-status-{{ 'active' if u.is_active else 'blacklisted' }}">{{ 'Active' if u.is_active else 'Blacklisted' }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted mb-4">No matching users found.</p>
+    {% endif %}
+
+{% endif %}
+{% endblock %}

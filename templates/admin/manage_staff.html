@@ -1,1 +1,87 @@
-<!-- Manage staff — to be implemented in Phase 3 -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header mb-4">
+    <h2>Manage Trek Staff</h2>
+</div>
+
+{% if staff_list %}
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Specialization</th>
+                        <th>Experience</th>
+                        <th>Profile Status</th>
+                        <th>Account Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in staff_list %}
+                    <tr>
+                        <td>{{ staff.id }}</td>
+                        <td>{{ staff.full_name or staff.username }}</td>
+                        <td>{{ staff.email }}</td>
+                        <td>{{ staff.staff_profile.specialization if staff.staff_profile else '-' }}</td>
+                        <td>{{ staff.staff_profile.experience if staff.staff_profile else '-' }}</td>
+                        <td>
+                            {% set p_status = staff.staff_profile.status if staff.staff_profile else 'None' %}
+                            <span class="badge badge-status-{{ p_status|lower }}">{{ p_status }}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-status-{{ 'active' if staff.is_active else 'blacklisted' }}">
+                                {{ 'Active' if staff.is_active else 'Blacklisted' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                {% if staff.staff_profile %}
+                                    {% if staff.staff_profile.status == 'pending' %}
+                                        <form action="{{ url_for('admin.approve_staff', staff_id=staff.id) }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-sm btn-success" title="Approve"><i class="bi bi-check-circle"></i> Approve</button>
+                                        </form>
+                                        <form action="{{ url_for('admin.blacklist_user', user_id=staff.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to blacklist this staff?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Blacklist"><i class="bi bi-slash-circle"></i></button>
+                                        </form>
+                                    {% elif staff.staff_profile.status == 'approved' %}
+                                        {% if staff.is_active %}
+                                        <form action="{{ url_for('admin.blacklist_user', user_id=staff.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to blacklist this staff?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Blacklist"><i class="bi bi-slash-circle"></i> Blacklist</button>
+                                        </form>
+                                        {% else %}
+                                        <form action="{{ url_for('admin.activate_user', user_id=staff.id) }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-sm btn-info" title="Activate"><i class="bi bi-arrow-counterclockwise"></i> Activate</button>
+                                        </form>
+                                        {% endif %}
+                                    {% elif staff.staff_profile.status == 'blacklisted' or not staff.is_active %}
+                                        <form action="{{ url_for('admin.activate_user', user_id=staff.id) }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-sm btn-info" title="Activate"><i class="bi bi-arrow-counterclockwise"></i> Activate</button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="empty-state p-5 text-center mt-4">
+    <div class="empty-state-icon mb-3 fs-1 text-muted"><i class="bi bi-person-badge"></i></div>
+    <div class="empty-state-text text-muted mb-3">No staff accounts found.</div>
+</div>
+{% endif %}
+{% endblock %}
