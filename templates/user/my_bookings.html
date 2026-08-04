@@ -1,1 +1,46 @@
-<!-- My bookings — to be implemented in Phase 5 -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Bookings</h2>
+    {% if bookings %}
+        <div class="table-responsive mt-4">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Trek Name</th>
+                        <th>Location</th>
+                        <th>Start Date</th>
+                        <th>Booking Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr>
+                            <td>#{{ booking.id }}</td>
+                            <td>{{ booking.trek.name }}</td>
+                            <td>{{ booking.trek.location }}</td>
+                            <td>{{ booking.trek.start_date.strftime('%Y-%m-%d') if booking.trek.start_date else '' }}</td>
+                            <td>{{ booking.booking_date.strftime('%Y-%m-%d %H:%M') if booking.booking_date else '' }}</td>
+                            <td><span class="badge bg-primary">{{ booking.status }}</span></td>
+                            <td>
+                                <form action="{{ url_for('user.cancel_booking', trek_id=booking.trek_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            You have no active bookings. <a href="{{ url_for('user.browse_treks') }}" class="alert-link">Browse treks</a> to make a booking.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

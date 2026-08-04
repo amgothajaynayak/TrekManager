@@ -1,13 +1,66 @@
 {% extends 'base.html' %}
-{% block title %}User Dashboard{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
-    <div class="page-header">
-        <h1><i class="bi bi-speedometer2"></i> Trekker Dashboard</h1>
-        <p class="text-muted">Welcome, {{ current_user.full_name }}! Explore and book amazing treks.</p>
+    <h2>Welcome, {{ current_user.full_name }}!</h2>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-calendar-check"></i> Active Bookings</h5>
+                    <p class="card-text display-4">{{ active_bookings|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-check-circle"></i> Completed Treks</h5>
+                    <p class="card-text display-4">{{ completed_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-map"></i> Available Treks</h5>
+                    <p class="card-text display-4">{{ open_treks_count }}</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i> Full trekker functionality coming in Phase 5.
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <h4>Your Active Bookings</h4>
+            {% if active_bookings %}
+                <div class="list-group">
+                    {% for booking in active_bookings %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>{{ booking.trek.name }}</h5>
+                                <p class="mb-0 text-muted"><i class="bi bi-calendar"></i> {{ booking.trek.start_date.strftime('%Y-%m-%d') if booking.trek.start_date else '' }}</p>
+                            </div>
+                            <form action="{{ url_for('user.cancel_booking', trek_id=booking.trek_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">You have no active bookings.</p>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <h4>Quick Links</h4>
+            <div class="list-group">
+                <a href="{{ url_for('user.browse_treks') }}" class="list-group-item list-group-item-action"><i class="bi bi-search"></i> Browse Treks</a>
+                <a href="{{ url_for('user.my_bookings') }}" class="list-group-item list-group-item-action"><i class="bi bi-bookmark"></i> My Bookings</a>
+                <a href="{{ url_for('user.trek_history') }}" class="list-group-item list-group-item-action"><i class="bi bi-clock-history"></i> Trek History</a>
+                <a href="{{ url_for('user.profile') }}" class="list-group-item list-group-item-action"><i class="bi bi-person"></i> Edit Profile</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

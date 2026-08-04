@@ -1,1 +1,45 @@
-<!-- Trek history — to be implemented in Phase 5 -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Trek History</h2>
+    {% if bookings %}
+        <div class="table-responsive mt-4">
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Trek Name</th>
+                        <th>Location</th>
+                        <th>Difficulty</th>
+                        <th>Booking Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.trek.name }}</td>
+                            <td>{{ booking.trek.location }}</td>
+                            <td>{{ booking.trek.difficulty }}</td>
+                            <td>{{ booking.booking_date.strftime('%Y-%m-%d') if booking.booking_date else '' }}</td>
+                            <td>
+                                {% if booking.status == 'Completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% elif booking.status == 'Cancelled' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ booking.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            You have no trek history.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,1 +1,64 @@
-<!-- Trek detail (user) — to be implemented in Phase 5 -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>{{ trek.name }}</h2>
+            <p class="text-muted"><i class="bi bi-geo-alt"></i> {{ trek.location }}</p>
+            {% if trek.image_url %}
+                <img src="{{ trek.image_url }}" class="img-fluid rounded mb-4" alt="{{ trek.name }}">
+            {% endif %}
+            <h4>Description</h4>
+            <p>{{ trek.description }}</p>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Booking Details</h4>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Difficulty</span>
+                            <span class="badge bg-secondary rounded-pill">{{ trek.difficulty }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Duration</span>
+                            <span>{{ trek.duration_days }} Days</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Start Date</span>
+                            <span>{{ trek.start_date.strftime('%Y-%m-%d') if trek.start_date else 'TBD' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>End Date</span>
+                            <span>{{ trek.end_date.strftime('%Y-%m-%d') if trek.end_date else 'TBD' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Price</span>
+                            <strong>${{ trek.price }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Available Slots</span>
+                            <span>{{ trek.available_slots }} / {{ trek.total_slots }}</span>
+                        </li>
+                    </ul>
+                    {% if trek.status == 'Open' %}
+                        {% if existing_booking %}
+                            <div class="alert alert-info mb-0">Already Booked</div>
+                        {% elif trek.available_slots > 0 %}
+                            <form action="{{ url_for('user.book_trek', trek_id=trek.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-primary w-100">Book Now</button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-warning mb-0">Fully Booked</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-danger mb-0">Trek is not available for booking</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

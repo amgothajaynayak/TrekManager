@@ -1,1 +1,54 @@
-<!-- Assigned treks — to be implemented in Phase 4 -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2>Assigned Treks</h2>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Difficulty</th>
+                    <th>Slots (Avail/Total)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trek in treks %}
+                <tr>
+                    <td>{{ trek.id }}</td>
+                    <td>{{ trek.name }}</td>
+                    <td>{{ trek.location }}</td>
+                    <td>
+                        <span class="badge {% if trek.difficulty == 'Easy' %}bg-success{% elif trek.difficulty == 'Moderate' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                            {{ trek.difficulty }}
+                        </span>
+                    </td>
+                    <td>{{ trek.available_slots }} / {{ trek.total_slots }}</td>
+                    <td>
+                        <span class="badge {% if trek.status == 'Open' %}bg-success{% elif trek.status == 'Completed' %}bg-primary{% else %}bg-secondary{% endif %}">
+                            {{ trek.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('staff.trek_detail', trek_id=trek.id) }}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-eye"></i> View Detail
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">No assigned treks found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
